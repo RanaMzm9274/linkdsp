@@ -85,6 +85,21 @@ export default function AdminApplications() {
     setShowDialog(true);
   };
 
+  const quickStatusUpdate = async (appId: string, newStatus: ApplicationStatus, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const { error } = await supabase
+      .from('applications')
+      .update({ status: newStatus })
+      .eq('id', appId);
+
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success(`Application ${newStatus === 'accepted' ? 'accepted' : 'rejected'}`);
+      fetchApplications();
+    }
+  };
+
   const saveApplication = async () => {
     if (!selectedApp) return;
     setSaving(true);
@@ -210,6 +225,37 @@ export default function AdminApplications() {
                   <div className="mt-4 p-3 bg-secondary/50 rounded-xl flex items-start gap-2">
                     <MessageSquare className="w-4 h-4 text-muted-foreground mt-0.5" />
                     <p className="text-sm text-muted-foreground">{app.admin_notes}</p>
+                  </div>
+                )}
+
+                {/* Quick Action Buttons */}
+                {app.status !== 'accepted' && app.status !== 'rejected' && (
+                  <div className="mt-4 pt-4 border-t border-border flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="text-success border-success/30 hover:bg-success/10"
+                      onClick={(e) => quickStatusUpdate(app.id, 'accepted', e)}
+                    >
+                      <CheckCircle className="w-4 h-4 mr-1" />
+                      Accept
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="text-destructive border-destructive/30 hover:bg-destructive/10"
+                      onClick={(e) => quickStatusUpdate(app.id, 'rejected', e)}
+                    >
+                      <XCircle className="w-4 h-4 mr-1" />
+                      Reject
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={(e) => { e.stopPropagation(); openEditDialog(app); }}
+                    >
+                      More Options
+                    </Button>
                   </div>
                 )}
               </div>
