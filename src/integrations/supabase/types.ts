@@ -119,6 +119,13 @@ export type Database = {
             referencedRelation: "universities"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_applications_user_id"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       profiles: {
