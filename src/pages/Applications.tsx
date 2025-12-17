@@ -49,8 +49,8 @@ export default function Applications() {
       .from('applications')
       .select(`
         id, status, created_at, updated_at, admin_notes, interview_date, interview_link,
-        university:universities(id, name, logo_url),
-        program:programs(id, name, degree_type)
+        university:universities!applications_university_id_fkey(id, name, logo_url),
+        program:programs!applications_program_id_fkey(id, name, degree_type)
       `)
       .eq('user_id', user!.id)
       .order('created_at', { ascending: false });
