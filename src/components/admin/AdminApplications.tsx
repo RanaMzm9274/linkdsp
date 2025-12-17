@@ -66,9 +66,9 @@ export default function AdminApplications() {
       .select(`
         id, status, created_at, updated_at, admin_notes, interview_date, interview_link,
         academic_history, personal_statement, user_id,
-        profile:profiles(full_name, email),
-        university:universities(id, name),
-        program:programs(id, name, degree_type)
+        profile:profiles!fk_applications_user_id(full_name, email),
+        university:universities!applications_university_id_fkey(id, name),
+        program:programs!applications_program_id_fkey(id, name, degree_type)
       `)
       .order('created_at', { ascending: false });
 
