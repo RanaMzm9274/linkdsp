@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { FileText, Clock, CheckCircle, XCircle, Video, Building, User, Calendar, Link as LinkIcon, MessageSquare, Filter } from 'lucide-react';
+import { FileText, Clock, CheckCircle, XCircle, Video, Building, User, Calendar, Link as LinkIcon, MessageSquare, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
 
 type ApplicationStatus = 'pending' | 'under_review' | 'interview_scheduled' | 'accepted' | 'rejected';
 
@@ -34,12 +34,15 @@ const statusConfig: Record<ApplicationStatus, { label: string; color: string; ic
   rejected: { label: 'Rejected', color: 'bg-destructive/10 text-destructive', icon: XCircle },
 };
 
+const ITEMS_PER_PAGE = 10;
+
 export default function AdminApplications() {
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
   const [showDialog, setShowDialog] = useState(false);
   const [filterStatus, setFilterStatus] = useState<ApplicationStatus | 'all'>('all');
+  const [currentPage, setCurrentPage] = useState(1);
   
   // Form states for editing
   const [editStatus, setEditStatus] = useState<ApplicationStatus>('pending');
@@ -51,6 +54,11 @@ export default function AdminApplications() {
   useEffect(() => {
     fetchApplications();
   }, []);
+
+  // Reset to page 1 when filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterStatus]);
 
   const fetchApplications = async () => {
     const { data, error } = await supabase
@@ -141,6 +149,11 @@ export default function AdminApplications() {
     ? applications 
     : applications.filter(app => app.status === filterStatus);
 
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredApps.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedApps = filteredApps.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
   if (loading) {
     return <div className="flex justify-center py-12"><div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
   }
@@ -175,93 +188,143 @@ export default function AdminApplications() {
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
-          {filteredApps.map((app) => {
-            const config = statusConfig[app.status];
-            const StatusIcon = config.icon;
+        <>
+          <div className="space-y-4">
+            {paginatedApps.map((app) => {
+              const config = statusConfig[app.status];
+              const StatusIcon = config.icon;
 
-            return (
-              <div
-                key={app.id}
-                className="bg-card rounded-2xl border border-border p-6 hover:border-primary/20 transition-all cursor-pointer"
-                onClick={() => openEditDialog(app)}
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center">
-                      <User className="w-6 h-6 text-muted-foreground" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-foreground">{app.profile?.full_name || 'Unknown'}</h3>
-                      <p className="text-sm text-muted-foreground">{app.profile?.email}</p>
-                      <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                        <span className="flex items-center gap-1"><Building className="w-4 h-4" /> {app.university?.name}</span>
-                        <span>{app.program?.name} ({app.program?.degree_type})</span>
+              return (
+                <div
+                  key={app.id}
+                  className="bg-card rounded-2xl border border-border p-6 hover:border-primary/20 transition-all cursor-pointer"
+                  onClick={() => openEditDialog(app)}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center">
+                        <User className="w-6 h-6 text-muted-foreground" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-foreground">{app.profile?.full_name || 'Unknown'}</h3>
+                        <p className="text-sm text-muted-foreground">{app.profile?.email}</p>
+                        <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+                          <span className="flex items-center gap-1"><Building className="w-4 h-4" /> {app.university?.name}</span>
+                          <span>{app.program?.name} ({app.program?.degree_type})</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${config.color}`}>
-                      <StatusIcon className="w-3.5 h-3.5" />
-                      {config.label}
-                    </span>
-                    <p className="text-xs text-muted-foreground mt-2">
-                      Applied {new Date(app.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-
-                {app.status === 'interview_scheduled' && app.interview_date && (
-                  <div className="mt-4 p-3 bg-purple-500/5 rounded-xl border border-purple-500/20 flex items-center gap-3">
-                    <Video className="w-5 h-5 text-purple-500" />
-                    <div>
-                      <p className="text-sm font-medium text-foreground">Interview: {new Date(app.interview_date).toLocaleString()}</p>
-                      {app.interview_link && <p className="text-xs text-muted-foreground truncate">{app.interview_link}</p>}
+                    <div className="text-right">
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${config.color}`}>
+                        <StatusIcon className="w-3.5 h-3.5" />
+                        {config.label}
+                      </span>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Applied {new Date(app.created_at).toLocaleDateString()}
+                      </p>
                     </div>
                   </div>
-                )}
 
-                {app.admin_notes && (
-                  <div className="mt-4 p-3 bg-secondary/50 rounded-xl flex items-start gap-2">
-                    <MessageSquare className="w-4 h-4 text-muted-foreground mt-0.5" />
-                    <p className="text-sm text-muted-foreground">{app.admin_notes}</p>
-                  </div>
-                )}
+                  {app.status === 'interview_scheduled' && app.interview_date && (
+                    <div className="mt-4 p-3 bg-purple-500/5 rounded-xl border border-purple-500/20 flex items-center gap-3">
+                      <Video className="w-5 h-5 text-purple-500" />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">Interview: {new Date(app.interview_date).toLocaleString()}</p>
+                        {app.interview_link && <p className="text-xs text-muted-foreground truncate">{app.interview_link}</p>}
+                      </div>
+                    </div>
+                  )}
 
-                {/* Quick Action Buttons */}
-                {app.status !== 'accepted' && app.status !== 'rejected' && (
-                  <div className="mt-4 pt-4 border-t border-border flex items-center gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="text-success border-success/30 hover:bg-success/10"
-                      onClick={(e) => quickStatusUpdate(app.id, 'accepted', e)}
-                    >
-                      <CheckCircle className="w-4 h-4 mr-1" />
-                      Accept
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="text-destructive border-destructive/30 hover:bg-destructive/10"
-                      onClick={(e) => quickStatusUpdate(app.id, 'rejected', e)}
-                    >
-                      <XCircle className="w-4 h-4 mr-1" />
-                      Reject
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={(e) => { e.stopPropagation(); openEditDialog(app); }}
-                    >
-                      More Options
-                    </Button>
-                  </div>
-                )}
+                  {app.admin_notes && (
+                    <div className="mt-4 p-3 bg-secondary/50 rounded-xl flex items-start gap-2">
+                      <MessageSquare className="w-4 h-4 text-muted-foreground mt-0.5" />
+                      <p className="text-sm text-muted-foreground">{app.admin_notes}</p>
+                    </div>
+                  )}
+
+                  {/* Quick Action Buttons */}
+                  {app.status !== 'accepted' && app.status !== 'rejected' && (
+                    <div className="mt-4 pt-4 border-t border-border flex items-center gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-success border-success/30 hover:bg-success/10"
+                        onClick={(e) => quickStatusUpdate(app.id, 'accepted', e)}
+                      >
+                        <CheckCircle className="w-4 h-4 mr-1" />
+                        Accept
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-destructive border-destructive/30 hover:bg-destructive/10"
+                        onClick={(e) => quickStatusUpdate(app.id, 'rejected', e)}
+                      >
+                        <XCircle className="w-4 h-4 mr-1" />
+                        Reject
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={(e) => { e.stopPropagation(); openEditDialog(app); }}
+                      >
+                        More Options
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between mt-6 pt-6 border-t border-border">
+              <p className="text-sm text-muted-foreground">
+                Showing {startIndex + 1}-{Math.min(startIndex + ITEMS_PER_PAGE, filteredApps.length)} of {filteredApps.length} applications
+              </p>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft className="w-4 h-4 mr-1" />
+                  Previous
+                </Button>
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(page => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1)
+                    .map((page, idx, arr) => (
+                      <span key={page}>
+                        {idx > 0 && arr[idx - 1] !== page - 1 && (
+                          <span className="px-2 text-muted-foreground">...</span>
+                        )}
+                        <Button
+                          variant={currentPage === page ? "default" : "outline"}
+                          size="sm"
+                          className="w-9"
+                          onClick={() => setCurrentPage(page)}
+                        >
+                          {page}
+                        </Button>
+                      </span>
+                    ))}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                  <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
               </div>
-            );
-          })}
-        </div>
+            </div>
+          )}
+        </>
       )}
 
       {/* Edit Dialog */}
