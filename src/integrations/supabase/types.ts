@@ -105,6 +105,20 @@ export type Database = {
             referencedRelation: "universities"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_applications_program_id"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_applications_university_id"
+            columns: ["university_id"]
+            isOneToOne: false
+            referencedRelation: "universities"
+            referencedColumns: ["id"]
+          },
         ]
       }
       profiles: {
