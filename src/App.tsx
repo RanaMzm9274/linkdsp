@@ -11,6 +11,9 @@ import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import UniversitiesList from "./pages/UniversitiesList";
 import UniversityDetail from "./pages/UniversityDetail";
+import ApplicationForm from "./pages/ApplicationForm";
+import Applications from "./pages/Applications";
+import AIConsultation from "./pages/AIConsultation";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,7 +29,10 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/auth/admin" element={<AdminAuth />} />
-            <Route path="/dashboard/*" element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard/applications" element={<Applications />} />
+            <Route path="/dashboard/ai-consultation" element={<AIConsultation />} />
+            <Route path="/dashboard/apply" element={<ApplicationForm />} />
             <Route path="/admin/*" element={<AdminDashboard />} />
             <Route path="/universities" element={<UniversitiesList />} />
             <Route path="/universities/:id" element={<UniversityDetail />} />

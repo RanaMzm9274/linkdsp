@@ -123,7 +123,7 @@ export default function UniversityDetail() {
                     {program.duration && <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {program.duration}</span>}
                     {program.tuition_fee && <span className="flex items-center gap-1"><DollarSign className="w-3.5 h-3.5" /> {program.tuition_fee}</span>}
                   </div>
-                  <Link to={`/auth?mode=signup`}>
+                  <Link to={`/dashboard/apply?university=${university.id}&program=${program.id}`}>
                     <Button variant="hero" size="sm" className="w-full group">
                       Apply Now <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </Button>
