@@ -38,24 +38,28 @@ export function Footer() {
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary">
                 <GraduationCap className="h-6 w-6 text-primary-foreground" />
               </div>
-              <span className="text-xl font-bold text-background">EduPath</span>
+              <span className="text-xl font-bold text-background">LinkD Student Portal</span>
             </Link>
             <p className="text-background/60 text-sm mb-6 max-w-xs">
               Empowering students worldwide to achieve their academic dreams through AI-powered guidance and seamless applications.
             </p>
             {/* Contact */}
-            <div className="space-y-2 text-sm text-background/60">
-              <div className="flex items-center gap-2">
-                <Mail className="w-4 h-4" />
-                support@edupath.com
+            <div className="space-y-3 text-sm text-background/60">
+              <div className="flex items-start gap-2">
+                <Mail className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                info@linkd.london
               </div>
               <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4" />
-                +1 (555) 123-4567
+                <Phone className="w-4 h-4 flex-shrink-0" />
+                +44 20 3411 2450
               </div>
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
-                San Francisco, CA
+              <div className="flex items-start gap-2">
+                <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                <span>Unit C1, Twickenham Trading Estate, Rugby Road, Twickenham TW1 1DQ, London, UK</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                <span>Office 24, 2nd Floor, New Liberty Tower, Model Town, Link Road, Lahore, Pakistan</span>
               </div>
             </div>
           </div>
@@ -115,7 +119,7 @@ export function Footer() {
         {/* Bottom */}
         <div className="mt-12 pt-8 border-t border-background/10 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-background/60">
-            © {new Date().getFullYear()} EduPath. All rights reserved.
+            © {new Date().getFullYear()} LinkD Student Portal. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
             {socialLinks.map((social) => (
