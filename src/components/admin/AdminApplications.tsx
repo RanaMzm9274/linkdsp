@@ -6,7 +6,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { FileText, Clock, CheckCircle, XCircle, Video, Building, User, Calendar, Link as LinkIcon, MessageSquare, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
+import { FileText, Clock, CheckCircle, XCircle, Video, Building, User, Calendar, Link as LinkIcon, MessageSquare, Filter, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
+import ApplicationPreview from './ApplicationPreview';
 
 type ApplicationStatus = 'pending' | 'under_review' | 'interview_scheduled' | 'accepted' | 'rejected';
 
@@ -41,6 +42,8 @@ export default function AdminApplications() {
   const [loading, setLoading] = useState(true);
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
   const [showDialog, setShowDialog] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewApp, setPreviewApp] = useState<Application | null>(null);
   const [filterStatus, setFilterStatus] = useState<ApplicationStatus | 'all'>('all');
   const [currentPage, setCurrentPage] = useState(1);
   
@@ -243,35 +246,46 @@ export default function AdminApplications() {
                   )}
 
                   {/* Quick Action Buttons */}
-                  {app.status !== 'accepted' && app.status !== 'rejected' && (
-                    <div className="mt-4 pt-4 border-t border-border flex items-center gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="text-success border-success/30 hover:bg-success/10"
-                        onClick={(e) => quickStatusUpdate(app.id, 'accepted', e)}
-                      >
-                        <CheckCircle className="w-4 h-4 mr-1" />
-                        Accept
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="text-destructive border-destructive/30 hover:bg-destructive/10"
-                        onClick={(e) => quickStatusUpdate(app.id, 'rejected', e)}
-                      >
-                        <XCircle className="w-4 h-4 mr-1" />
-                        Reject
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={(e) => { e.stopPropagation(); openEditDialog(app); }}
-                      >
-                        More Options
-                      </Button>
-                    </div>
-                  )}
+                  <div className="mt-4 pt-4 border-t border-border flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="text-primary border-primary/30 hover:bg-primary/10"
+                      onClick={(e) => { e.stopPropagation(); setPreviewApp(app); setShowPreview(true); }}
+                    >
+                      <Eye className="w-4 h-4 mr-1" />
+                      View Full Application
+                    </Button>
+                    {app.status !== 'accepted' && app.status !== 'rejected' && (
+                      <>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-success border-success/30 hover:bg-success/10"
+                          onClick={(e) => quickStatusUpdate(app.id, 'accepted', e)}
+                        >
+                          <CheckCircle className="w-4 h-4 mr-1" />
+                          Accept
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-destructive border-destructive/30 hover:bg-destructive/10"
+                          onClick={(e) => quickStatusUpdate(app.id, 'rejected', e)}
+                        >
+                          <XCircle className="w-4 h-4 mr-1" />
+                          Reject
+                        </Button>
+                      </>
+                    )}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={(e) => { e.stopPropagation(); openEditDialog(app); }}
+                    >
+                      More Options
+                    </Button>
+                  </div>
                 </div>
               );
             })}
@@ -416,6 +430,14 @@ export default function AdminApplications() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Application Preview Modal */}
+      <ApplicationPreview
+        open={showPreview}
+        onOpenChange={setShowPreview}
+        application={previewApp}
+        profile={previewApp?.profile || null}
+      />
     </div>
   );
 }
